@@ -6,17 +6,21 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Reveal from '@/components/Reveal'
 import Link from 'next/link'
-import { Building2, Users, BookOpen, Brain, ChevronRight, AlertTriangle, Loader2, Plus, ClipboardList } from 'lucide-react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { Building2, Users, BookOpen, Brain, ChevronRight, Activity, Loader2, Plus, ClipboardList, Search, CheckCircle2, MessageSquare } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
-const matchData = [1,3,5,7,9,11,13,15,18,21,24,27,30].map((d,i) => ({ d, m: 250 + i * 50 + Math.random() * 100 | 0 }))
-const memData = ['Jan','Feb','Mar','Apr','May','Jun'].map((mo,i) => ({ mo, mb: 400 + i * 70 }))
+type AiInsights = {
+  daily: { date: string; searches: number; matchedSearches: number }[]
+  overview: { searches: number; searchesWithMatches: number; matchRate: number; activeConversations: number }
+  latestSync: { synchronizedAt: string } | null
+}
 
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [stats, setStats] = useState({ totalProperties: 0, newUsers: 0, matchesToday: 0, revenue: 0 })
   const [loading, setLoading] = useState(true)
+  const [aiInsights, setAiInsights] = useState<AiInsights | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') { router.push('/login'); return }
@@ -25,7 +29,14 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (status !== 'authenticated') return
-    fetch('/api/admin/stats').then(r => r.json()).then(d => { setStats(d); setLoading(false) }).catch(() => setLoading(false))
+    Promise.all([fetch('/api/admin/stats'), fetch('/api/admin/ai-insights')])
+      .then(async ([statsResponse, insightsResponse]) => {
+        const statsData = await statsResponse.json()
+        const insightsData = await insightsResponse.json()
+        if (statsResponse.ok) setStats(statsData)
+        if (insightsResponse.ok) setAiInsights(insightsData)
+      })
+      .finally(() => setLoading(false))
   }, [status])
 
   const sidebarLinks = [
@@ -75,49 +86,19 @@ export default function AdminPage() {
               </Reveal>
               <Reveal>
                 <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-6 shadow-[0_10px_30px_rgba(24,21,17,.05)]">
-                  <div className="mb-5 flex items-center justify-between"><h2 className="font-display text-lg font-semibold text-[#211e19]">AI Matching Performance (30 days)</h2><ChevronRight size={18} className="text-[#c3bcae]" /></div>
+                  <div className="mb-5 flex items-center justify-between"><div><h2 className="font-display text-lg font-semibold text-[#211e19]">AI Property Search Activity (30 days)</h2><p className="mt-1 text-xs text-[#9a9284]">Real searches stored by Search with AI.</p></div><Link href="/admin/ai" aria-label="Open AI insights"><ChevronRight size={18} className="text-[#c3bcae]" /></Link></div>
                   <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={matchData}><CartesianGrid strokeDasharray="3 3" stroke="#f1ede5" /><XAxis dataKey="d" tick={{ fontSize: 11, fill: '#a89f90' }} /><YAxis tick={{ fontSize: 11, fill: '#a89f90' }} /><Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(24,21,17,0.14)' }} /><Line type="monotone" dataKey="m" stroke="#b98a43" strokeWidth={2.5} dot={false} name="Matches" /></LineChart>
+                    <LineChart data={aiInsights?.daily || []}><CartesianGrid strokeDasharray="3 3" stroke="#f1ede5" /><XAxis dataKey="date" tick={{ fontSize: 11, fill: '#a89f90' }} interval={4} /><YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#a89f90' }} /><Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(24,21,17,0.14)' }} /><Line type="monotone" dataKey="searches" stroke="#b98a43" strokeWidth={2.5} dot={false} name="Searches" /><Line type="monotone" dataKey="matchedSearches" stroke="#211e19" strokeWidth={2} dot={false} name="With results" /></LineChart>
                   </ResponsiveContainer>
                 </div>
               </Reveal>
               <div className="grid gap-6 lg:grid-cols-2">
                 <Reveal>
-                  <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-6 shadow-[0_10px_30px_rgba(24,21,17,.05)]">
-                    <div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-semibold text-[#211e19]">AI Training Status</h2><span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600"><div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />Live</span></div>
-                    <div className="flex items-center gap-5">
-                      <div className="relative h-24 w-24 shrink-0">
-                        <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee9e0" strokeWidth="3" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#b98a43" strokeWidth="3" strokeDasharray="70, 100" />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center font-display text-lg font-semibold text-[#211e19]">70%</div>
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        {[{ n: 'Property Images', v: 42 }, { n: 'Bedroom Classification', v: 33 }, { n: 'Pet-Friendly Detection', v: 10 }].map(d => (
-                          <div key={d.n}><div className="mb-1 flex justify-between text-xs"><span className="text-[#756f66]">{d.n}</span><span className="font-semibold text-[#211e19]">{d.v}%</span></div><div className="h-1.5 rounded-full bg-[#f1ede5]"><div className="h-full rounded-full bg-[#b98a43]" style={{ width: `${d.v}%` }} /></div></div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-6 shadow-[0_10px_30px_rgba(24,21,17,.05)]"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-semibold text-[#211e19]">AI Knowledge Status</h2><Link href="/admin/ai" className="text-xs font-semibold text-[#a47737]">Open insights</Link></div><div className="grid grid-cols-2 gap-3">{[{ icon: Search, label: 'Searches', value: aiInsights?.overview.searches || 0 }, { icon: CheckCircle2, label: 'With results', value: aiInsights?.overview.searchesWithMatches || 0 }, { icon: Activity, label: 'Result rate', value: `${aiInsights?.overview.matchRate || 0}%` }, { icon: MessageSquare, label: 'Conversations', value: aiInsights?.overview.activeConversations || 0 }].map(item => <div key={item.label} className="rounded-xl bg-[#f8f6f1] p-3"><item.icon size={15} className="mb-2 text-[#b98a43]" /><p className="text-xs text-[#9a9284]">{item.label}</p><p className="mt-0.5 font-semibold text-[#211e19]">{item.value}</p></div>)}</div></div>
                 </Reveal>
                 <Reveal delay={90}>
                   <div className="space-y-4">
-                    <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-5 shadow-[0_10px_30px_rgba(24,21,17,.05)]">
-                      <h3 className="mb-3 font-display text-sm font-semibold text-[#211e19]">System Memory Usage</h3>
-                      <ResponsiveContainer width="100%" height={100}><BarChart data={memData} barSize={14}><XAxis dataKey="mo" tick={{ fontSize: 10, fill: '#a89f90' }} /><Tooltip contentStyle={{ borderRadius: 10, border: 'none' }} /><Bar dataKey="mb" fill="#b98a43" radius={[3,3,0,0]} /></BarChart></ResponsiveContainer>
-                    </div>
-                    <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-5 shadow-[0_10px_30px_rgba(24,21,17,.05)]">
-                      <h3 className="mb-3 font-display text-sm font-semibold text-[#211e19]">Recent Reports</h3>
-                      <div className="space-y-3">
-                        {[{ user: 'Content Issue', time: '22 min ago', color: 'text-amber-500' }, { user: 'New Signup', time: '23 min ago', color: 'text-[#a47737]' }, { user: 'Payment Query', time: '25 min ago', color: 'text-emerald-500' }].map((r, i) => (
-                          <div key={i} className="flex items-center justify-between border-b border-[#f1ede5] py-1 last:border-0">
-                            <div className="flex items-center gap-2"><AlertTriangle size={13} className={r.color} /><div><div className="text-sm font-medium text-[#3c3934]">{r.user}</div><div className="text-xs text-[#a89f90]">{r.time}</div></div></div>
-                            <ChevronRight size={13} className="text-[#c3bcae]" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <div className="rounded-[24px] border border-[#e0d9cd] bg-white p-5 shadow-[0_10px_30px_rgba(24,21,17,.05)]"><h3 className="font-display text-sm font-semibold text-[#211e19]">Knowledge sync</h3><p className="mt-2 text-sm text-[#756f66]">{aiInsights?.latestSync?.synchronizedAt ? `Last synced ${new Date(aiInsights.latestSync.synchronizedAt).toLocaleString()}` : 'No inventory snapshot has been synced yet.'}</p><Link href="/admin/ai" className="mt-4 inline-flex text-xs font-semibold text-[#a47737]">Sync published listings →</Link></div>
                   </div>
                 </Reveal>
               </div>

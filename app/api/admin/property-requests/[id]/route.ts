@@ -55,3 +55,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .lean()
   return NextResponse.json({ request: updated })
 }
+
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  await connectDB()
+  const request = await PropertyRequest.findByIdAndDelete(params.id).select('_id').lean()
+  if (!request) return NextResponse.json({ error: 'Property request not found.' }, { status: 404 })
+  return NextResponse.json({ deletedId: String(request._id) })
+}

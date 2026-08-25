@@ -129,6 +129,14 @@ export default function StayNestChatWidget() {
     }
   }
 
+  // This intentionally clears only this browser's visible chat window.
+  // AiConversation remains unchanged for user history and admin review.
+  const clearVisibleChat = () => {
+    if (loading) return
+    setMessages([WELCOME_MESSAGE])
+    setInput('')
+  }
+
   return (
     <div className="fixed bottom-4 right-4 z-[100] sm:bottom-6 sm:right-6">
       {open ? (
@@ -141,7 +149,7 @@ export default function StayNestChatWidget() {
                 <p className="flex items-center gap-1.5 text-xs text-[#e7c98f]"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Ready to help</p>
               </div>
             </div>
-            <button type="button" onClick={() => setOpen(false)} className="rounded-lg p-2 text-white/60 transition hover:bg-white/10 hover:text-white" aria-label="Close AI chat"><X size={18} /></button>
+            <div className="flex items-center gap-1"><button type="button" onClick={clearVisibleChat} disabled={loading} className="rounded-lg px-2 py-1.5 text-xs font-semibold text-[#edcc8a] transition hover:bg-white/10 hover:text-white disabled:opacity-40">Clear chat</button><button type="button" onClick={() => setOpen(false)} className="rounded-lg p-2 text-white/60 transition hover:bg-white/10 hover:text-white" aria-label="Close AI chat"><X size={18} /></button></div>
           </header>
 
           <div className="flex-1 space-y-4 overflow-y-auto p-4">

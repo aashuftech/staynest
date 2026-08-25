@@ -4,9 +4,8 @@ import { useCallback, useEffect, useRef } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 
 /**
- * If an administrator bans a currently signed-in account, SessionProvider's
- * short revalidation detects it and this guard immediately removes the local
- * session and sends that browser to login.
+ * Checks account access when the signed-in browser is opened or brought back
+ * into focus. It deliberately does not poll while the page is idle.
  */
 export default function AccountAccessGuard() {
   const { status } = useSession()
@@ -45,12 +44,12 @@ export default function AccountAccessGuard() {
       }
     }
 
+    // One initial check plus focus checks keeps the ban/logout safeguard
+    // without producing a terminal request every two seconds.
     verifyAccount()
-    const interval = window.setInterval(verifyAccount, 2000)
     window.addEventListener('focus', verifyAccount)
     return () => {
       active = false
-      window.clearInterval(interval)
       window.removeEventListener('focus', verifyAccount)
     }
   }, [status, forceLogout])
