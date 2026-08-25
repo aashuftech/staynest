@@ -10,7 +10,7 @@ import Footer from '@/components/layout/Footer'
 
 const STATUSES = ['NEW', 'REVIEWING', 'CONTACTED', 'MATCH_FOUND', 'CLOSED']
 const STATUS_STYLE: Record<string, string> = { NEW: 'bg-sky-100 text-sky-700', REVIEWING: 'bg-amber-100 text-amber-700', CONTACTED: 'bg-violet-100 text-violet-700', MATCH_FOUND: 'bg-emerald-100 text-emerald-700', CLOSED: 'bg-slate-200 text-slate-700' }
-const NAV = [{ icon: Building2, label: 'Dashboard', href: '/admin' }, { icon: Building2, label: 'Properties', href: '/admin/properties' }, { icon: ClipboardList, label: 'Listing Requests', href: '/admin/listing-requests' }, { icon: ClipboardList, label: 'Property Requests', href: '/admin/property-requests', active: true }, { icon: Users, label: 'Users', href: '/admin/users' }, { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' }, { icon: Brain, label: 'AI Training', href: '/admin/ai' }]
+const NAV = [{ icon: Building2, label: 'Dashboard', href: '/admin' }, { icon: Building2, label: 'Properties', href: '/admin/properties' }, { icon: ClipboardList, label: 'Listing Requests', href: '/admin/listing-requests' }, { icon: ClipboardList, label: 'Property Requests', href: '/admin/property-requests', active: true }, { icon: Users, label: 'Users', href: '/admin/users' }, { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' }, { icon: Brain, label: 'AI Activity', href: '/admin/ai' }]
 
 export default function AdminPropertyRequestsPage() {
   const { data: session, status } = useSession()

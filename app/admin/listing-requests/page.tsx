@@ -21,7 +21,7 @@ export default function ListingRequestsPage() {
     { icon: ClipboardList, label: 'Property Requests', href: '/admin/property-requests' },
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' },
-    { icon: Brain, label: 'AI Training', href: '/admin/ai' },
+    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
   ]
 
   useEffect(() => {

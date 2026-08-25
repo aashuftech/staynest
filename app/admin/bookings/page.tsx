@@ -58,7 +58,7 @@ export default function AdminBookingsPage() {
     { icon: ClipboardList, label: 'Property Requests', href: '/admin/property-requests' },
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: BookOpen, label: 'Bookings', href: '/admin/bookings', active: true },
-    { icon: Brain, label: 'AI Training', href: '/admin/ai' },
+    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
   ]
 
   return (

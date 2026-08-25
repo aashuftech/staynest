@@ -87,7 +87,7 @@ export default function AddPropertyPage() {
     { icon: Building2, label: 'Properties', href: '/admin/properties', active: true },
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' },
-    { icon: Brain, label: 'AI Training', href: '/admin/ai' },
+    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
   ]
 
   return (

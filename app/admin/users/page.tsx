@@ -128,7 +128,7 @@ export default function AdminUsersPage() {
     },
     { icon: Users, label: 'Users', href: '/admin/users', active: true },
     { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' },
-    { icon: Brain, label: 'AI Training', href: '/admin/ai' },
+    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
   ]
 
   return (
