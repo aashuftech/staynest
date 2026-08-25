@@ -45,7 +45,7 @@ export default function AdminPage() {
     { icon: ClipboardList, label: 'Property Requests', href: '/admin/property-requests' },
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' },
-    { icon: Brain, label: 'AI Training', href: '/admin/ai' },
+    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
   ]
 
   if (status === 'loading') return <div className="flex min-h-screen items-center justify-center bg-[#f8f6f1]"><Loader2 size={36} className="animate-spin text-[#b98a43]" /></div>
