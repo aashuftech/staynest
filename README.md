@@ -4,13 +4,6 @@ StayNest is an AI-powered real estate platform where users can discover properti
 
 The platform supports guest, user, and admin roles with separate access and management features.
 
-## Screenshots and Demo
-
-Add your verified screenshots and deployment links here.
-
-- **Live Demo:** Add deployed URL
-- **GitHub Repository:** Add GitHub repository URL
-
 ## Features
 
 - Browse verified properties for rent and purchase.
