@@ -6,5 +6,5 @@ export default function Loading() {
         <p className="text-gray-400 text-sm font-medium">Loading StayNest...</p>
       </div>
     </div>
-  )
+  );
 }

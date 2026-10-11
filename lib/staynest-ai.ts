@@ -25,18 +25,18 @@ STAYNEST PRODUCT GUIDE
 PROPERTY RECOMMENDATIONS
 - If REAL LISTINGS are supplied in context, mention only facts from them.
 - If none are supplied, do not make up listings. Encourage the user to use Apartments > Search with AI or submit Request a Property.
-`.trim()
+`.trim();
 
 export function fallbackAiMessage(languageText: string) {
-  const value = languageText.toLowerCase()
+  const value = languageText.toLowerCase();
 
   if (/[ऀ-ॿ]/.test(languageText)) {
-    return 'Abhi AI response available nahi hai. Kripya thodi der baad dobara try karein.'
+    return "Abhi AI response available nahi hai. Kripya thodi der baad dobara try karein.";
   }
 
   if (/\b(kya|hai|mujhe|chahiye|kaise|nahi|karna|property)\b/.test(value)) {
-    return 'Abhi AI response available nahi hai. Please thodi der baad dobara try karein.'
+    return "Abhi AI response available nahi hai. Please thodi der baad dobara try karein.";
   }
 
-  return 'The AI assistant is temporarily unavailable. Please try again in a moment.'
+  return "The AI assistant is temporarily unavailable. Please try again in a moment.";
 }

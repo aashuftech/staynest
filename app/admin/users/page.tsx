@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import Link from 'next/link'
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Link from "next/link";
 import {
   Ban,
   BookOpen,
@@ -19,117 +19,120 @@ import {
   Shield,
   UserCheck,
   Users,
-} from 'lucide-react'
+} from "lucide-react";
 
 export default function AdminUsersPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [search, setSearch] = useState('')
-  const [updatingId, setUpdatingId] = useState('')
-  const [notice, setNotice] = useState('')
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState("");
+  const [updatingId, setUpdatingId] = useState("");
+  const [notice, setNotice] = useState("");
 
   const loadUsers = async (showTableLoader = true) => {
-    if (showTableLoader) setLoading(true)
+    if (showTableLoader) setLoading(true);
 
     try {
       const response = await fetch(
-        `/api/admin/users${search ? `?search=${encodeURIComponent(search)}` : ''}`
-      )
-      const data = await response.json()
-      setUsers(data.users || [])
+        `/api/admin/users${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+      );
+      const data = await response.json();
+      setUsers(data.users || []);
     } finally {
-      if (showTableLoader) setLoading(false)
+      if (showTableLoader) setLoading(false);
     }
-  }
+  };
 
   const refreshUsers = async () => {
-    setRefreshing(true)
+    setRefreshing(true);
     try {
-      await loadUsers(false)
+      await loadUsers(false);
     } finally {
-      setRefreshing(false)
+      setRefreshing(false);
     }
-  }
+  };
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
     }
 
-    if (status === 'authenticated' && (session?.user as any)?.role !== 'ADMIN') {
-      router.push('/dashboard')
+    if (
+      status === "authenticated" &&
+      (session?.user as any)?.role !== "ADMIN"
+    ) {
+      router.push("/dashboard");
     }
-  }, [status, session, router])
+  }, [status, session, router]);
 
   useEffect(() => {
-    if (status !== 'authenticated') return
+    if (status !== "authenticated") return;
 
     const timer = window.setTimeout(() => {
-      loadUsers()
-    }, 180)
+      loadUsers();
+    }, 180);
 
-    return () => window.clearTimeout(timer)
-  }, [status, search])
+    return () => window.clearTimeout(timer);
+  }, [status, search]);
 
-  const updateBanStatus = async (user: any, action: 'BAN' | 'UNBAN') => {
-    setUpdatingId(user._id)
-    setNotice('')
+  const updateBanStatus = async (user: any, action: "BAN" | "UNBAN") => {
+    setUpdatingId(user._id);
+    setNotice("");
 
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user._id,
           action,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Unable to update user.')
+        throw new Error(data.error || "Unable to update user.");
       }
 
-      const isBanned = data?.user?.isBanned === true
+      const isBanned = data?.user?.isBanned === true;
 
-      setUsers(current =>
-        current.map(item =>
-          item._id === user._id ? { ...item, isBanned } : item
-        )
-      )
+      setUsers((current) =>
+        current.map((item) =>
+          item._id === user._id ? { ...item, isBanned } : item,
+        ),
+      );
 
       setNotice(
         isBanned
           ? `${user.name} has been banned.`
-          : `${user.name} has been unbanned.`
-      )
+          : `${user.name} has been unbanned.`,
+      );
 
-      await loadUsers(false)
+      await loadUsers(false);
     } catch (error: any) {
-      setNotice(error.message || 'Unable to update user.')
+      setNotice(error.message || "Unable to update user.");
     } finally {
-      setUpdatingId('')
+      setUpdatingId("");
     }
-  }
+  };
 
   const sidebarLinks = [
-    { icon: Building2, label: 'Dashboard', href: '/admin' },
-    { icon: Building2, label: 'Properties', href: '/admin/properties' },
+    { icon: Building2, label: "Dashboard", href: "/admin" },
+    { icon: Building2, label: "Properties", href: "/admin/properties" },
     {
       icon: ClipboardList,
-      label: 'Property Requests',
-      href: '/admin/property-requests',
+      label: "Property Requests",
+      href: "/admin/property-requests",
     },
-    { icon: Users, label: 'Users', href: '/admin/users', active: true },
-    { icon: BookOpen, label: 'Bookings', href: '/admin/bookings' },
-    { icon: Brain, label: 'AI Activity', href: '/admin/ai' },
-  ]
+    { icon: Users, label: "Users", href: "/admin/users", active: true },
+    { icon: BookOpen, label: "Bookings", href: "/admin/bookings" },
+    { icon: Brain, label: "AI Activity", href: "/admin/ai" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#f8f6f1]">
@@ -153,14 +156,14 @@ export default function AdminUsersPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex gap-8">
           <aside className="hidden w-56 shrink-0 flex-col gap-1 lg:flex">
-            {sidebarLinks.map(link => (
+            {sidebarLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
                   (link as any).active
-                    ? 'bg-[#211e19] text-white shadow-md'
-                    : 'bg-white text-[#575149] shadow-sm hover:bg-[#f1ede5] hover:text-[#211e19]'
+                    ? "bg-[#211e19] text-white shadow-md"
+                    : "bg-white text-[#575149] shadow-sm hover:bg-[#f1ede5] hover:text-[#211e19]"
                 }`}
               >
                 <link.icon size={20} />
@@ -176,7 +179,8 @@ export default function AdminUsersPage() {
                   User Management
                 </h2>
                 <p className="text-sm text-gray-400">
-                  {users.length} accounts · search by name, email, or user ID such as #12
+                  {users.length} accounts · search by name, email, or user ID
+                  such as #12
                 </p>
               </div>
 
@@ -190,7 +194,7 @@ export default function AdminUsersPage() {
               >
                 <RefreshCw
                   size={17}
-                  className={refreshing ? 'animate-spin' : ''}
+                  className={refreshing ? "animate-spin" : ""}
                 />
               </button>
             </div>
@@ -211,7 +215,7 @@ export default function AdminUsersPage() {
                 placeholder="Search name, email, or #user ID..."
                 className="input-field pl-9"
                 value={search}
-                onChange={event => setSearch(event.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
               />
             </div>
 
@@ -258,17 +262,17 @@ export default function AdminUsersPage() {
                         </td>
                       </tr>
                     ) : (
-                      users.map(user => {
-                        const admin = user.role === 'ADMIN'
-                        const busy = updatingId === user._id
+                      users.map((user) => {
+                        const admin = user.role === "ADMIN";
+                        const busy = updatingId === user._id;
 
                         return (
                           <tr
                             key={user._id}
                             className={`transition-colors ${
                               user.isBanned
-                                ? 'bg-gray-50 opacity-45 grayscale'
-                                : 'hover:bg-[#fffdf8]'
+                                ? "bg-gray-50 opacity-45 grayscale"
+                                : "hover:bg-[#fffdf8]"
                             }`}
                           >
                             <td className="px-6 py-4">
@@ -281,17 +285,17 @@ export default function AdminUsersPage() {
                                       alt=""
                                     />
                                   ) : (
-                                    (user.name?.[0] || 'U').toUpperCase()
+                                    (user.name?.[0] || "U").toUpperCase()
                                   )}
                                 </div>
 
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">
-                                    {user.name || '—'}
+                                    {user.name || "—"}
                                   </p>
                                   {!admin && (
                                     <p className="mt-0.5 text-xs font-semibold text-[#a56d1e]">
-                                      #{user.publicId || '—'}
+                                      #{user.publicId || "—"}
                                     </p>
                                   )}
                                 </div>
@@ -306,18 +310,18 @@ export default function AdminUsersPage() {
                               <span
                                 className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
                                   user.isBanned
-                                    ? 'bg-red-100 text-red-700'
+                                    ? "bg-red-100 text-red-700"
                                     : admin
-                                      ? 'bg-purple-100 text-purple-700'
-                                      : 'bg-emerald-100 text-emerald-700'
+                                      ? "bg-purple-100 text-purple-700"
+                                      : "bg-emerald-100 text-emerald-700"
                                 }`}
                               >
                                 {admin && <Shield size={11} />}
                                 {user.isBanned
-                                  ? 'BANNED'
+                                  ? "BANNED"
                                   : admin
-                                    ? 'ADMIN'
-                                    : 'ACTIVE'}
+                                    ? "ADMIN"
+                                    : "ACTIVE"}
                               </span>
                             </td>
 
@@ -343,13 +347,13 @@ export default function AdminUsersPage() {
                                       onClick={() =>
                                         updateBanStatus(
                                           user,
-                                          user.isBanned ? 'UNBAN' : 'BAN'
+                                          user.isBanned ? "UNBAN" : "BAN",
                                         )
                                       }
                                       className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white transition disabled:opacity-50 ${
                                         user.isBanned
-                                          ? 'bg-emerald-600 hover:bg-emerald-700'
-                                          : 'bg-red-600 hover:bg-red-700'
+                                          ? "bg-emerald-600 hover:bg-emerald-700"
+                                          : "bg-red-600 hover:bg-red-700"
                                       }`}
                                     >
                                       {busy ? (
@@ -363,15 +367,15 @@ export default function AdminUsersPage() {
                                         <Ban size={14} />
                                       )}
                                       {user.isBanned
-                                        ? 'Unban User'
-                                        : 'Ban User'}
+                                        ? "Unban User"
+                                        : "Ban User"}
                                     </button>
                                   </>
                                 )}
                               </div>
                             </td>
                           </tr>
-                        )
+                        );
                       })
                     )}
                   </tbody>
@@ -384,5 +388,5 @@ export default function AdminUsersPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
